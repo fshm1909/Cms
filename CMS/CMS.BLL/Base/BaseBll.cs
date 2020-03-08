@@ -1,0 +1,46 @@
+﻿using CMS.DAL;
+using CMS.Model;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace CMS.BLL
+{
+    public class BaseBll<TEntity> where TEntity : ModelBase, new()
+    {
+        public ICommonDAL<TEntity> DAL
+        {
+            get; set;
+        }
+
+        public BaseBll()
+        {
+        }
+        public BaseBll(CommonDAL<TEntity> Dal)
+        {
+            DAL = Dal;
+        }
+
+        #region 通用的数据库方法
+
+        /// <summary>
+        /// 获取实体
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public TEntity Get(int id)
+        {
+            return DAL.Get(id);
+        }
+
+        //public TDto Get<TDto>(int id) where TDto : class, new()
+        //{
+        //    var entity = Get(id);
+        //    return Mapper.Map<TDto>(entity);
+        //}
+
+        #endregion
+    }
+}

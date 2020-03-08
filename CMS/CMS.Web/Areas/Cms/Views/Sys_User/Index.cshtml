@@ -1,0 +1,92 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Cms/Views/Shared/_Layout.cshtml";
+}
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <!--搜索栏-->
+                <div class="layui-card-body ">
+                    <form class="layui-form layui-col-space5">
+                        <div class="layui-inline layui-show-xs-block">
+                            <input class="layui-input" autocomplete="off" placeholder="开始日" name="start" id="start">
+                        </div>
+                        <div class="layui-inline layui-show-xs-block">
+                            <input class="layui-input" autocomplete="off" placeholder="截止日" name="end" id="end">
+                        </div>
+                        <div class="layui-inline layui-show-xs-block">
+                            <input type="text" name="username" placeholder="请输入用户名" autocomplete="off" class="layui-input">
+                        </div>
+                        <div class="layui-inline layui-show-xs-block">
+                            <button class="layui-btn" lay-submit="" lay-filter="sreach">
+                                <i class="layui-icon">&#xe615;</i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <!--表格主体-->
+                <div class="layui-card-body ">
+                    <table class="layui-table" lay-data="{id:'tblist',url:'@Url.Action("List","Sys_User")',page:true,method:'post',toolbar:'#toolbarDemo'}" lay-filter="test">
+                        <thead>
+                            <tr>
+                                <th lay-data="{type:'checkbox'}">ID</th>
+                                <th lay-data="{field:'ID', width:80, sort: true}">ID</th>
+                                <th lay-data="{field:'UserName', width:120, sort: true, edit: 'text'}">用户名</th>
+                                <th lay-data="{field:'Pwd', edit: 'text', minWidth: 150}">密码</th>
+                                <th lay-data="{field:'AddUser', width:80}">添加人</th>
+                                <th lay-data="{field:'AddTime', edit: 'text', minWidth: 100}">添加时间</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--按钮模板-->
+<script type="text/html" id="toolbarDemo">
+    <div class="layui-btn-container">
+        <button class="layui-btn layui-btn-sm" lay-event="getCheckData"> 获取选中行数据 </button>
+        <button class="layui-btn layui-btn-sm" lay-event="getCheckLength">获取选中数目</button>
+        <button class="layui-btn layui-btn-sm" lay-event="isAll"> 验证是否全选</button>
+    </div>
+</script>
+
+<script type="text/html" id="switchTpl">
+    <!-- 这里的checked的状态只是演示 -->
+    <input type="checkbox" name="sex" value="{{d.id}}" lay-skin="switch" lay-text="女|男" lay-filter="sexDemo" {{ d.id == 10003 ? 'checked': ''}}>
+</script>
+<script>
+    layui.use(['table'], function () {
+        var table = layui.table;
+
+        //头工具栏事件
+        table.on('toolbar(test)',
+            function (obj) {
+                var checkStatus = table.checkStatus(obj.config.id);
+                switch (obj.event) {
+                    case 'getCheckData':
+                        var data = checkStatus.data;
+                        layer.alert(JSON.stringify(data));
+                        break;
+                    case 'getCheckLength':
+                        var data = checkStatus.data;
+                        layer.msg('选中了：' + data.length + ' 个');
+                        break;
+                    case 'isAll':
+                        layer.msg(checkStatus.isAll ? '全选' : '未全选');
+                        break;
+                };
+            });
+
+        //监听单元格编辑
+        table.on('edit(test)',
+            function (obj) {
+                var value = obj.value //得到修改后的值
+                var data = obj.data //得到所在行所有键值
+                var field = obj.field; //得到字段
+                layer.msg('[ID: ' + data.id + '] ' + field + ' 字段更改为：' + value);
+            });
+    });
+</script>
