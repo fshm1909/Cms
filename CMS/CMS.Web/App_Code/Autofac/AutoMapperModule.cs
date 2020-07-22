@@ -8,6 +8,9 @@ using System.Web;
 
 namespace CMS.Web
 {
+    /// <summary>
+    /// AutoMapper的Autofac模块
+    /// </summary>
     public class AutoMapperModule : Autofac.Module
     {
         private readonly IEnumerable<Assembly> assembliesToScan;
@@ -35,8 +38,7 @@ namespace CMS.Web
                             typeof(IMappingAction<,>)
             };
 
-            foreach (var type in openTypes.SelectMany(openType =>
-                 allTypes.Where(t => t.IsClass && !t.IsAbstract && ImplementsGenericInterface(t.AsType(), openType))))
+            foreach (var type in openTypes.SelectMany(openType =>allTypes.Where(t => t.IsClass && !t.IsAbstract && ImplementsGenericInterface(t.AsType(), openType))))
             {
                 builder.RegisterType(type.AsType()).InstancePerDependency();
             }

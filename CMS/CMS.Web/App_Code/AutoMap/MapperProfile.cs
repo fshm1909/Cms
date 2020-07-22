@@ -1,17 +1,18 @@
 ﻿using AutoMapper;
 using CMS.Model;
-using CMS.Model.Dto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Web;
 
-namespace CMS.BLL
+namespace CMS.Web
 {
-    public class SystemProfile : Profile
+    /// <summary>
+    /// AutoMapper映射配置文件（创建映射关系）
+    /// </summary>
+    public class MapperProfile : Profile
     {
-        public SystemProfile()
+        public MapperProfile()
         {
             CreateMap<Sys_User, Sys_User_Out>();
             CreateMap<Sys_User_In, Sys_User>();

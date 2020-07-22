@@ -1,5 +1,9 @@
 ﻿using Autofac;
 using Autofac.Integration.Mvc;
+using AutoMapper;
+using CMS.BLL;
+using CMS.DAL;
+using CMS.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +13,9 @@ using System.Web.Mvc;
 
 namespace CMS.Web
 {
+    /// <summary>
+    /// Autofac配置类
+    /// </summary>
     public class AutofacConfig
     {
         /// <summary>
@@ -17,26 +24,30 @@ namespace CMS.Web
         /// </summary>
         public static void Register()
         {
+            //容器配置实例=>进行容器的注册组件=>创建容器=>解析服务
+
             //实例化一个autofac的创建容器
             var builder = new ContainerBuilder();
-            //告诉Autofac框架，将来要创建的控制器类存放在哪个程序集 (AutoFacMvcDemo)
-            Assembly controllerAss = Assembly.Load("CMS.Web");
-            builder.RegisterControllers(controllerAss);
 
-            //如果有Dal层的话，注册Dal层的组件
-            //告诉autofac框架注册数据仓储层所在程序集中的所有类的对象实例
-            Assembly dalAss = Assembly.Load("CMS.DAL");
-            //创建respAss中的所有类的instance以此类的实现接口存储
-            builder.RegisterTypes(dalAss.GetTypes()).AsImplementedInterfaces();
+            // MVC - 注册所有控制器
+            builder.RegisterControllers(typeof(MvcApplication).Assembly);
+            //builder.RegisterControllers(Assembly.GetExecutingAssembly()).PropertiesAutowired();
 
-            //告诉autofac框架注册业务逻辑层所在程序集中的所有类的对象实例
-            Assembly serviceAss = Assembly.Load("CMS.BLL");
-            //创建serAss中的所有类的instance以此类的实现接口存储
-            builder.RegisterTypes(serviceAss.GetTypes()).AsImplementedInterfaces();
+            //注册AutoMapper模块
+            builder.RegisterModule(new CMS.Web.AutoMapperModule());
 
-            //注册AutoMapper
-            builder.RegisterAssemblyModules(controllerAss);
-            new AutoMapperModule();
+            //创建地图配置实例（配置映射关系，此处使用配置文件（SystemProfile）获取配置关系）
+            var config = new MapperConfiguration(cfg => { cfg.AddProfile<MapperProfile>(); });
+            //创建mapper实例（此处可以依赖注入创建实例）
+            var mapper = config.CreateMapper();
+            //注册mapper实例组件
+            builder.RegisterInstance(mapper);
+
+            //注册DAL层组件和服务
+            builder.RegisterGeneric(typeof(CommonDAL<>)).As(typeof(ICommonDAL<>)).InstancePerLifetimeScope(); 
+
+            //注册Bll层
+            builder.RegisterType<Sys_UserBLL>();
 
 
             //创建一个Autofac的容器

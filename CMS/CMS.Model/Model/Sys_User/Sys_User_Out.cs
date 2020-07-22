@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CMS.Model.Dto
+namespace CMS.Model
 {
     public class Sys_User_Out
     {
@@ -16,10 +16,6 @@ namespace CMS.Model.Dto
         ///用户名
         /// <summary>
         public string UserName { get; set; }
-        /// <summary>
-        ///密码
-        /// <summary>
-        public string Pwd { get; set; }
         /// <summary>
         ///添加人
         /// <summary>

@@ -49,8 +49,8 @@
     <Reference Include="Autofac.Integration.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
       <HintPath>..\packages\Autofac.Mvc5.4.0.2\lib\net45\Autofac.Integration.Mvc.dll</HintPath>
     </Reference>
-    <Reference Include="AutoMapper, Version=9.0.0.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
-      <HintPath>..\packages\AutoMapper.9.0.0\lib\net461\AutoMapper.dll</HintPath>
+    <Reference Include="AutoMapper, Version=10.0.0.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.10.0.0\lib\net461\AutoMapper.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=2.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
@@ -217,8 +217,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Code\Autofac\AutofacConfig.cs" />
-    <Compile Include="App_Code\AutoMap\AutoMapperModule.cs" />
+    <Compile Include="App_Code\Autofac\AutoMapperModule.cs" />
     <Compile Include="App_Code\AutoMap\MapperConfig.cs" />
+    <Content Include="App_Code\AutoMap\MapperProfile.cs" />
     <Compile Include="App_Code\Controller\BaseController.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Areas\Cms\CmsAreaRegistration.cs" />

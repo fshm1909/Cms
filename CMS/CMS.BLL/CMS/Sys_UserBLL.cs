@@ -6,26 +6,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
-using CMS.Model.Dto;
 
 namespace CMS.BLL
 {
     public class Sys_UserBLL : BaseBll<Sys_User>
     {
-        private readonly ICommonDAL<Sys_User> _commonDAL;
-        private readonly IMapper _mapper;
-        public Sys_UserBLL() { }
-        public Sys_UserBLL(Mapper mapper)
-        {
-            _mapper = mapper;
-            _commonDAL = new CommonDAL<Sys_User>();
-        }
-
-        public Sys_UserBLL(CommonDAL<Sys_User> Dal)
-        {
-            _commonDAL = Dal;
-        }
-
+        //调用父类构造函数
+        public Sys_UserBLL(IMapper mapper, ICommonDAL<Sys_User> CommonDAL) : base(mapper, CommonDAL) { }
+        
         #region 查
 
         /// <summary>
@@ -90,8 +78,8 @@ namespace CMS.BLL
 
             #endregion
 
-            var list = _commonDAL.GetDynamicPaged(pageNumber, rowsPerPage, orderby, sql + where, dic);
-            count = _commonDAL.RecordCount(sql + where, dic);
+            var list = DAL.GetDynamicPaged(pageNumber, rowsPerPage, orderby, sql + where, dic);
+            count = DAL.RecordCount(sql + where, dic);
 
             return list;
         }
@@ -156,10 +144,10 @@ namespace CMS.BLL
 
             #endregion
 
-            var list = _commonDAL.GetListPaged(pageNumber, rowsPerPage, where, orderby, dic);
-            count = _commonDAL.RecordCount(where, dic);
+            var list = DAL.GetListPaged(pageNumber, rowsPerPage, where, orderby, dic);
+            count = DAL.RecordCount(where, dic);
 
-            return _mapper.Map<IEnumerable<Sys_User_Out>>(list); ;
+            return Mapper.Map<IEnumerable<Sys_User_Out>>(list); ;
         }
 
         #endregion
@@ -173,12 +161,12 @@ namespace CMS.BLL
         /// <returns></returns>
         public int Add(Sys_User_In model)
         {
-            var dbtran = _commonDAL.BeginTransaction();//开启事务
+            var dbtran = DAL.BeginTransaction();//开启事务
             try
             {
-                var entity = _mapper.Map<Sys_User>(model);
+                var entity = Mapper.Map<Sys_User>(model);
 
-                int? ID = _commonDAL.Insert(entity, dbtran);
+                int? ID = DAL.Insert(entity, dbtran);
 
                 dbtran.Commit();//提交事务
                 return 1;
@@ -201,14 +189,14 @@ namespace CMS.BLL
         /// <returns></returns>
         public int Edit(Sys_User_In model)
         {
-            var dbtran = _commonDAL.BeginTransaction();
+            var dbtran = DAL.BeginTransaction();
             try
             {
-                var entity = _commonDAL.Get(model.ID, dbtran);
+                var entity = DAL.Get(model.ID, dbtran);
 
                 //Mapper.Map<Sys_User_In, Sys_User>(model, entity);//把model数据转移到entity
 
-                _commonDAL.Update(entity, dbtran);
+                DAL.Update(entity, dbtran);
 
                 dbtran.Commit();//提交事务
 
@@ -224,6 +212,7 @@ namespace CMS.BLL
                 dbtran.Dispose();//释放事务资源
             }
         }
+
         #endregion
 
     }

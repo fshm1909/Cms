@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CMS.Model.Dto
+namespace CMS.Model
 {
     public class Sys_User_In
     {

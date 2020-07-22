@@ -14,7 +14,6 @@ namespace CMS.Web
             AreaRegistration.RegisterAllAreas();
             RouteConfig.RegisterRoutes(RouteTable.Routes);
 
-            //MapperConfig.Register();// 注册AutoMapper配置
             AutofacConfig.Register();//注册Autofac配置
         }
     }

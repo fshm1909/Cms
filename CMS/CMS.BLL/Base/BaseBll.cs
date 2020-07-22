@@ -1,4 +1,5 @@
-﻿using CMS.DAL;
+﻿using AutoMapper;
+using CMS.DAL;
 using CMS.Model;
 using System;
 using System.Collections.Generic;
@@ -8,20 +9,32 @@ using System.Threading.Tasks;
 
 namespace CMS.BLL
 {
-    public class BaseBll<TEntity> where TEntity : ModelBase, new()
+    public class BaseBll<TEntity> : IBLL where TEntity : ModelBase, new()
     {
-        public ICommonDAL<TEntity> DAL
+        //DAL层实例
+        public ICommonDAL<TEntity> DAL { get; set; }
+
+        //mapper实例
+        public IMapper Mapper { get; set; }
+
+        public BaseBll() { }
+
+        //public BaseBll(CommonDAL<TEntity> Dal)
+        //{
+        //    DAL = Dal;//依赖注入，通过构造函数上层传入实例
+        //}
+
+        //public BaseBll(IMapper mapper)
+        //{
+        //    Mapper = mapper;//依赖注入，通过构造函数上层传入实例
+        //}
+
+        public BaseBll(IMapper mapper, ICommonDAL<TEntity> CommonDAL)
         {
-            get; set;
+            Mapper = mapper;//依赖注入，通过构造函数上层传入实例
+            DAL = CommonDAL;//依赖注入，通过构造函数上层传入实例
         }
 
-        public BaseBll()
-        {
-        }
-        public BaseBll(CommonDAL<TEntity> Dal)
-        {
-            DAL = Dal;
-        }
 
         #region 通用的数据库方法
 

@@ -6,6 +6,8 @@ using System.Web;
 using System.Web.Mvc;
 using CMS.Web;
 using AutoMapper;
+using CMS.DAL;
+using CMS.Model;
 
 namespace CMS.Web.Areas.Cms.Controllers
 {
@@ -15,11 +17,12 @@ namespace CMS.Web.Areas.Cms.Controllers
     public class Sys_UserController : BaseController
     {
         private Sys_UserBLL bll;
-        //通过构造器注入依赖
-        public Sys_UserController(Mapper mapper)
+
+        public Sys_UserController(Sys_UserBLL Bll)
         {
-            bll = new Sys_UserBLL(mapper);
+            bll = Bll;
         }
+
         public ActionResult Index()
         {
             return View();
