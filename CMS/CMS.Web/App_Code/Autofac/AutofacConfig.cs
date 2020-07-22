@@ -3,7 +3,6 @@ using Autofac.Integration.Mvc;
 using AutoMapper;
 using CMS.BLL;
 using CMS.DAL;
-using CMS.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,8 +35,8 @@ namespace CMS.Web
             //注册AutoMapper模块
             builder.RegisterModule(new CMS.Web.AutoMapperModule());
 
-            //创建地图配置实例（配置映射关系，此处使用配置文件（SystemProfile）获取配置关系）
-            var config = new MapperConfiguration(cfg => { cfg.AddProfile<MapperProfile>(); });
+            //创建地图配置实例（配置映射关系，此处使用配置文件（MapperProfile）获取配置关系）
+            var config = new MapperConfiguration(cfg => { cfg.AddProfile<CMS.Web.MapperProfile>(); });
             //创建mapper实例（此处可以依赖注入创建实例）
             var mapper = config.CreateMapper();
             //注册mapper实例组件

@@ -10,7 +10,7 @@ namespace CMS.Web
     /// <summary>
     /// AutoMapper映射配置文件（创建映射关系）
     /// </summary>
-    public class MapperProfile : Profile
+    public class MapperProfile:Profile
     {
         public MapperProfile()
         {

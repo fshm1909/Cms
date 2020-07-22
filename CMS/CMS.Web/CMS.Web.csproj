@@ -218,8 +218,7 @@
   <ItemGroup>
     <Compile Include="App_Code\Autofac\AutofacConfig.cs" />
     <Compile Include="App_Code\Autofac\AutoMapperModule.cs" />
-    <Compile Include="App_Code\AutoMap\MapperConfig.cs" />
-    <Content Include="App_Code\AutoMap\MapperProfile.cs" />
+    <Compile Include="App_Code\AutoMap\MapperProfile.cs" />
     <Compile Include="App_Code\Controller\BaseController.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Areas\Cms\CmsAreaRegistration.cs" />

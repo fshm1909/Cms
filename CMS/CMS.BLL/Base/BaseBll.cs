@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CMS.BLL
 {
-    public class BaseBll<TEntity> : IBLL where TEntity : ModelBase, new()
+    public class BaseBll<TEntity> where TEntity : ModelBase, new()
     {
         //DAL层实例
         public ICommonDAL<TEntity> DAL { get; set; }
