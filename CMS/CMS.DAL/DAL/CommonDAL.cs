@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using CMS.Common;
 using CMS.Model;
 using Dapper;
 

@@ -46,8 +46,8 @@ namespace CMS.Web
             builder.RegisterGeneric(typeof(CommonDAL<>)).As(typeof(ICommonDAL<>)).InstancePerLifetimeScope(); 
 
             //注册Bll层
-            builder.RegisterType<Sys_UserBLL>();
-
+            //builder.RegisterType<Sys_UserBLL>();
+            builder.RegisterAssemblyTypes(Assembly.Load("CMS.BLL"));
 
             //创建一个Autofac的容器
             var container = builder.Build();

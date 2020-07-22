@@ -1,10 +1,14 @@
 ﻿using System;
-using System.Configuration;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Runtime.Remoting.Messaging;
+using System.Text;
+using System.Threading.Tasks;
+using System.Configuration;
 
-namespace CMS.DAL
+namespace CMS.Common
 {
     public class ConnectionHelper
     {
