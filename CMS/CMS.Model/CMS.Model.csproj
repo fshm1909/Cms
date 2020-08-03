@@ -52,10 +52,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ModelBase\ModelBase.cs" />
+    <Compile Include="Model\Sys_Menu\DTO\Sys_Menu_In.cs" />
+    <Compile Include="Model\Sys_Menu\DTO\Sys_Menu_Out.cs" />
+    <Compile Include="Model\Sys_Menu\Sys_Menu.cs" />
     <Compile Include="Model\Sys_User\Sys_User.cs" />
-    <Compile Include="Model\Sys_User\Sys_User_In.cs" />
-    <Compile Include="Model\Sys_User\Sys_User_Out.cs" />
+    <Compile Include="Model\Sys_User\DTO\Sys_User_In.cs" />
+    <Compile Include="Model\Sys_User\DTO\Sys_User_Out.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PublicModel\Hierarchy.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CMS.Common\CMS.Common.csproj">
@@ -66,5 +70,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

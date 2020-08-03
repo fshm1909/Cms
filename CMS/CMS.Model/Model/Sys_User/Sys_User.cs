@@ -33,5 +33,9 @@ namespace CMS.Model
         ///删除标记
         /// <summary>
         public string DeleteFlag { get; set; }
+        /// <summary>
+        ///删除时间
+        /// <summary>
+        public DateTime? DeleteTime { get; set; }
     }
 }

@@ -1,0 +1,114 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Cms/Views/Shared/_Layout.cshtml";
+}
+<div class="layui-fluid">
+    <div class="layui-row layui-col-space15">
+        <div class="layui-col-md12">
+            <div class="layui-card">
+                <!--按钮-->
+                <div class="layui-card-header">
+                    <button class="layui-btn" onclick="xadmin.open('添加用户','@Url.Action("AddOrEdit", "Sys_Menu")',600,400)"><i class="layui-icon">&#xe61f;</i>添加</button>
+                    <button class="layui-btn layui-btn-danger" onclick="delAll()"><i class="layui-icon">&#xe640;</i>批量删除</button>
+                    <button class="layui-btn layui-btn-primary layui-btn-xs layui-btn-xstree" onclick="openAll();">展开或折叠全部</button>
+                    <button class="layui-btn" onclick="reload();">表格刷新</button>
+                    <button class="layui-btn layui-btn-small" onclick="location.reload()" title="刷新"><i class="layui-icon layui-icon-refresh" style="line-height:30px"></i></button>
+                </div>
+                <!--表格主体-->
+                <div class="layui-card-body ">
+                    <table class="layui-hidden" lay-filter="MainTable" id="MainTable"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--表格列按钮模板-->
+<script type="text/html" id="colbtnTpl">
+    <button class="layui-btn" title="添加子菜单" lay-event="addchild">添加子菜单</button>
+    <button class="layui-btn" title="编辑" lay-event="edit">编辑</button>
+    <button class="layui-btn layui-btn-normal" title="菜单按钮" lay-event="menubtn">菜单按钮</button>
+    <button class="layui-btn layui-btn-danger" title="删除" lay-event="del">删除</button>
+</script>
+<script>
+    var ptable = null, treeGrid = null, layer = null, tableId = 'MainTable';
+    layui.config({
+        base: '/Scripts/lib/layui/extend/'
+    }).extend({
+        tableEdit: 'tableEdit',  //表格树依赖我另外写的tableEdit模块，本项目就有。
+        tableTree: 'tableTree'
+    }).use(['jquery', 'treeGrid', 'layer'], function () {
+        var $ = layui.jquery;
+        treeGrid = layui.treeGrid;//很重要
+        layer = layui.layer;
+
+        //属性配置查看treeGrid.js文件1037行
+        ptable = treeGrid.render({
+            id: tableId,
+            elem: '#' + tableId,
+            url: '/Cms/Sys_Menu/List',
+            cellMinWidth: 100,
+            idField: 'ID', //必須字段
+            treeId: 'ID', //树形id字段名称
+            treeUpId: 'PID', //树形父id字段名称
+            treeShowName: 'Name', //以树形式显示的字段
+            height: '100%',
+            iconOpen: false, //是否显示图标【默认显示】
+            isOpenDefault: true, //节点默认是展开还是折叠【默认展开】
+            cols: [[
+                { type: 'checkbox' },
+                { field: 'Name', title: '菜单名称', width: 300 },
+                { field: 'ID', title: 'ID', width: 100 },
+                { field: 'PID', title: 'PID', width: 100 },
+                { field: 'Area', title: '区域', width: 100 },
+                { field: 'Controllers', title: '控制器', width: 100 },
+                { field: 'Action', title: '方法', width: 100 },
+                { field: 'Sort', title: '排序号', width: 100, align: 'center' },
+                { field: 'Icon', title: '图标', width: 100, align: 'center' },
+                { fixed: 'right', title: '操作', width: 300, align: 'center', templet: '#colbtnTpl' }
+            ]]
+        });
+
+        //刷新(添加修改等子页面也需要用到)
+        reload = function () {
+            treeGrid.reload(tableId, {page: {curr: 1}});
+        }
+
+        //行工具栏事件
+        treeGrid.on('tool(' + tableId + ')', function (obj) {
+            switch (obj.event) {
+                case "addchild": { xadmin.open('编辑菜单', '@Url.Action("AddOrEdit", "Sys_Menu")?PID=' + obj.data.ID, 600, 600) }; break;
+                case "edit": { xadmin.open('编辑菜单', '@Url.Action("AddOrEdit", "Sys_Menu")?ID=' + obj.data.ID, 600, 600) }; break;
+                case "del": {
+                    layer.confirm('确认要删除吗?', function (index) {
+                        $.ajax({
+                            type: "POST",
+                            url: '@Url.Action("Delete", "Sys_Menu")',
+                            data: { "IdList": obj.data.ID },
+                            success: function (result) {
+                                layer.close(index);
+                                if (result.Success) {
+                                    layer.msg(result.Message, { icon: 1, time: 3000 }, function () {
+                                        reload();
+                                    });
+                                } else {
+                                    layer.alert(result.Message, { icon: 2 });
+                                }
+                            },
+                            error: function () {
+                                layer.close(loading);
+                                layer.alert("服务器出错！", { icon: 2 });
+                            }
+                        });
+                    });
+                }; break;
+                default:
+            }
+        });
+    });
+
+    //展开或折叠全部
+    function openAll() {
+        var treedata = treeGrid.getDataTreeList(tableId);
+        treeGrid.treeOpenAll(tableId, !treedata[0][treeGrid.config.cols.isOpen]);
+    }
+</script>

@@ -25,16 +25,22 @@
                         </div>
                     </form>
                 </div>
+                <!--按钮-->
+                <div class="layui-card-header">
+                    <button class="layui-btn layui-btn-danger" onclick="delAll()"><i class="layui-icon"></i>批量删除</button>
+                    <button class="layui-btn" onclick="xadmin.open('添加用户','./member-add.html',600,400)"><i class="layui-icon"></i>添加</button>
+                </div>
                 <!--表格主体-->
                 <div class="layui-card-body ">
                     <table class="layui-table" lay-data="{id:'tblist',url:'@Url.Action("List","Sys_User")',page:true,method:'post',toolbar:'#toolbarDemo'}" lay-filter="test">
                         <thead>
                             <tr>
-                                <th lay-data="{type:'checkbox'}">ID</th>
+                                <th lay-data="{type:'checkbox'}"></th>
                                 <th lay-data="{field:'ID', width:80, sort: true}">ID</th>
                                 <th lay-data="{field:'UserName', width:120, sort: true, edit: 'text'}">用户名</th>
                                 <th lay-data="{field:'AddUser', width:80}">添加人</th>
                                 <th lay-data="{field:'AddTime', edit: 'text', minWidth: 100}">添加时间</th>
+                                <th lay-data="{fixed:'right', width: 200, templet: '#colbtnTpl'}">操作</th>
                             </tr>
                         </thead>
                     </table>
@@ -43,7 +49,7 @@
         </div>
     </div>
 </div>
-<!--按钮模板-->
+<!--表格上方按钮模板-->
 <script type="text/html" id="toolbarDemo">
     <div class="layui-btn-container">
         <button class="layui-btn layui-btn-sm" lay-event="getCheckData"> 获取选中行数据 </button>
@@ -51,10 +57,10 @@
         <button class="layui-btn layui-btn-sm" lay-event="isAll"> 验证是否全选</button>
     </div>
 </script>
-
-<script type="text/html" id="switchTpl">
-    <!-- 这里的checked的状态只是演示 -->
-    <input type="checkbox" name="sex" value="{{d.id}}" lay-skin="switch" lay-text="女|男" lay-filter="sexDemo" {{ d.id == 10003 ? 'checked': ''}}>
+<!--表格列按钮模板-->
+<script type="text/html" id="colbtnTpl">
+    <button class="layui-btn" onclick="delAll()" title="编辑"><i class="layui-icon"></i>编辑</button>
+    <button class="layui-btn layui-btn-danger" onclick="delAll()" title="删除"><i class="layui-icon"></i>删除</button>
 </script>
 <script>
     layui.use(['table'], function () {

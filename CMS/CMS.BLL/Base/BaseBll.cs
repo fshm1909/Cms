@@ -48,11 +48,11 @@ namespace CMS.BLL
             return DAL.Get(id);
         }
 
-        //public TDto Get<TDto>(int id) where TDto : class, new()
-        //{
-        //    var entity = Get(id);
-        //    return Mapper.Map<TDto>(entity);
-        //}
+        public TDto Get<TDto>(int id) where TDto : class, new()
+        {
+            var entity = Get(id);
+            return Mapper.Map<TDto>(entity);
+        }
 
         #endregion
     }

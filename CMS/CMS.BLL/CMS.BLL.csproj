@@ -45,7 +45,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Base\BaseBll.cs" />
-    <Compile Include="CMS\Sys_UserBLL.cs" />
+    <Compile Include="SYS\Sys_MenuBLL.cs" />
+    <Compile Include="SYS\Sys_UserBLL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

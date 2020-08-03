@@ -57,7 +57,7 @@
       <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.2.0.0\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.12.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
@@ -118,6 +118,9 @@
     <Content Include="Scripts\lib\layui\css\modules\layer\default\loading-0.gif" />
     <Content Include="Scripts\lib\layui\css\modules\layer\default\loading-1.gif" />
     <Content Include="Scripts\lib\layui\css\modules\layer\default\loading-2.gif" />
+    <Content Include="Scripts\lib\layui\extend\dltable.js" />
+    <Content Include="Scripts\lib\layui\extend\treeGrid.js" />
+    <Content Include="Scripts\lib\layui\extend\xm-select.js" />
     <Content Include="Scripts\lib\layui\font\iconfont.svg" />
     <Content Include="Scripts\lib\layui\images\face\0.gif" />
     <Content Include="Scripts\lib\layui\images\face\1.gif" />
@@ -223,12 +226,14 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="Areas\Cms\CmsAreaRegistration.cs" />
     <Compile Include="Areas\Cms\Controllers\HomeController.cs" />
+    <Compile Include="Areas\Cms\Controllers\Sys\Sys_MenuController.cs" />
     <Compile Include="Areas\Cms\Controllers\Sys\Sys_UserController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\LayTable.cs" />
+    <Compile Include="Models\ResponseModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -240,6 +245,8 @@
     <Content Include="fonts\iconfont.ttf" />
     <Content Include="fonts\iconfont.woff" />
     <Content Include="Areas\Cms\Views\Sys_User\Index.cshtml" />
+    <Content Include="Areas\Cms\Views\Sys_Menu\Index.cshtml" />
+    <Content Include="Areas\Cms\Views\Sys_Menu\AddOrEdit.cshtml" />
     <None Include="packages.config" />
     <Content Include="Scripts\lib\layui\font\iconfont.eot" />
     <Content Include="Scripts\lib\layui\font\iconfont.ttf" />
@@ -252,7 +259,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Views\Cms\" />
+    <Folder Include="T4\" />
     <Folder Include="Views\Home\" />
   </ItemGroup>
   <ItemGroup>

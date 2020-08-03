@@ -1,0 +1,136 @@
+﻿@{
+    ViewBag.Title = "添加修改";
+    Layout = "~/Areas/Cms/Views/Shared/_Layout.cshtml";
+}
+@model Sys_Menu_Out
+<div class="layui-fluid">
+    <div class="layui-row">
+        <form class="layui-form">
+            @Html.AntiForgeryToken()
+            <input type="hidden" value="@Model.ID" name="ID" />
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="x-red">*</span>父级菜单</label>
+                <div class="layui-input-inline">
+                    <div id="PID" name="PID"></div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label"><span class="x-red">*</span>菜单名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" id="Name" name="Name" required="" autocomplete="off" value="@Model.Name">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">区域</label>
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" name="Area" autocomplete="off" value="@Model.Area">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">控制器</label>
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" name="Controllers" autocomplete="off" value="@Model.Controllers">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">方法</label>
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" name="Action" autocomplete="off" value="@Model.Action">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">图标</label>
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" id="Icon" name="Icon" autocomplete="off" value="@Model.Icon">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">排序</label>
+                <div class="layui-input-inline">
+                    <input type="number" class="layui-input" id="Sort" name="Sort" autocomplete="off" value="@(Model.Sort??0)">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label for="L_repass" class="layui-form-label"></label>
+                <button type="button" class="layui-btn" lay-submit="" lay-filter="Save">保存</button>
+                <button type="button" class="layui-btn layui-btn-primary" id="btnCancel">取消</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    //加载组件
+    layui.config({
+        base: '/Scripts/lib/layui/extend/'
+    }).extend({
+        xmSelect: 'xm-select'
+    }).use(['form', 'layer', 'jquery', 'xmSelect'], function () {
+        $ = layui.jquery;
+        var form = layui.form, layer = layui.layer;
+        var xmSelect = layui.xmSelect;
+
+        //渲染多选
+        var xmSelect_PID = xmSelect.render({
+            el: '#PID',
+            name:"PID",//表单提交Name
+            initValue: [ '@Model.PID' ],//初始化选中的数据, 需要在data中存在
+            radio: true,//是否开启单选模式
+            filterable: true,//	是否开启搜索
+            clickClose: true,//是否点击选项后自动关闭下拉框
+            tree: {
+                show: true,//是否展示为树状结构
+                strict: true,//默认展开节点
+                expandedKeys: true,//	默认展开的节点数组, 为true时展开所有节点
+                strict: false//是否遵循严格父子结构
+            }
+        })
+
+        $.ajax({
+            type: "POST",
+            url: '@(Url.Action("GetMenu", "Sys_Menu"))',
+            data: {},
+            success: function (result) {
+                    if (result.Success) {
+                        xmSelect_PID.update({ data: result.Data})
+                    } else {
+                        layer.alert(result.Message, { icon: 2 });
+                    }
+                },
+                error: function () {
+                    layer.close(loading);
+                    layer.alert("服务器出错！", { icon: 2 });
+                }
+         });
+
+        //监听提交
+        form.on('submit(Save)', function (data) {
+            var loading = layer.load();
+            $.ajax({
+                type: "POST",
+                url: '@(Url.Action(Model.ID > 0 ? "Edit" : "Add", "Sys_Menu"))',
+                data: data.field,
+                success: function (result) {
+                    layer.close(loading);
+                    if (result.Success) {
+                        layer.msg(result.Message, { icon: 1, time: 2000 }, function () {
+                            parent.reload();
+                            xadmin.close();
+                        });
+                    } else {
+                        layer.alert(result.Message, { icon: 2 });
+                    }
+                },
+                error: function () {
+                    layer.close(loading);
+                    layer.alert("服务器出错！", { icon: 2 });
+                }
+            });
+            return false;
+        });
+
+        // 监听关闭
+        $('#btnCancel').on('click', function () {
+            xadmin.close();
+        });
+    });
+</script>
