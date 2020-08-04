@@ -41,6 +41,10 @@ namespace CMS.Model
         /// <summary>
         public int? Sort { get; set; }
         /// <summary>
+        /// 是否启用
+        /// </summary>
+        public bool? IsEnable { get; set; }
+        /// <summary>
         ///添加人
         /// <summary>
         public string AddUser { get; set; }

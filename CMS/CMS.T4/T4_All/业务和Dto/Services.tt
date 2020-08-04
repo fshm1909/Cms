@@ -1,0 +1,352 @@
+﻿<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ output extension=".cs" encoding="utf-8" #>
+<#@ assembly name="System.Core.dll" #>
+<#@ assembly name="System.Data.dll" #>
+<#@ assembly name="System.Data.DataSetExtensions.dll" #>
+<#@ assembly name="System.Xml.dll" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.Xml" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Data" #>
+<#@ import namespace="System.Data.SqlClient" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.IO" #>
+<#@ include file="$(SolutionDir)\BMOA.T4\T4_All\DbHelper.ttinclude"#>
+<#@ include file="$(SolutionDir)\BMOA.T4\T4_All\MultipleOutputHelper.ttinclude"#>
+
+<#
+	string ns = ".System";
+
+    List<DbTable> tableList = DbHelper.GetDbTables(MyDbConfig.ConnectionString, MyDbConfig.DbDatabase, MyDbConfig.TableName);
+	var manager = Manager.Create(Host, GenerationEnvironment);
+	foreach (var table in tableList)
+	{
+		var columnList = DbHelper.GetDbColumns(MyDbConfig.ConnectionString, MyDbConfig.DbDatabase, table.TableName);//获取实体所有字段
+		
+		//创建路径
+        string path =Host.ResolveAssemblyReference("$(ProjectDir)")+"T4_All\\业务和Dto\\"+table.TableName;
+        if (!Directory.Exists(path))
+        {
+            Directory.CreateDirectory(path);
+        }
+
+		//获取主键名称
+        var PKColumn=columnList.Where(o=>o.IsPrimaryKey);	
+		string PKColumnName="ID";//默认名称ID
+        if (PKColumn.Count()>0)
+        {
+		  PKColumnName=PKColumn.First().ColumnName;
+        }
+#>
+<# manager.StartNewFile(path+"\\"+table.TableName + "Service.cs");#>
+using AutoMapper;
+using BMOA.Application.System.Dto;
+using BMOA.Common;
+using BMOA.Core;
+using BMOA.Core.Repository;
+using System;
+using System.Collections.Generic;
+
+namespace BMOA.Application<#= ns #>
+{
+	public class <#= table.TableName + "Service" #>
+	{
+		private readonly IRepository<<#= table.TableName #>> _repository;
+
+        public <#= table.TableName + "Service" #>()
+        {
+		   _repository = new Repository<<#= table.TableName #>>();
+        }
+				
+        #region 查询
+
+		/// <summary>
+        /// 获取实体
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+		public <#= table.TableName #> Get(int id)
+		{
+			return _repository.Get(id);
+		}
+
+		/// <summary>
+        /// 获取输出对象
+        /// </summary>
+        /// <typeparam name="TDto"></typeparam>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public TDto Get<TDto>(int id) where TDto : class, new()
+        {
+            var entity = Get(id);
+            return Mapper.Map<TDto>(entity);
+        }
+
+		/// <summary>
+        /// 分页数据
+        /// </summary>
+        /// <param name="dic_conditions"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+        public List<<#= table.TableName #>Output> GetListPage(
+            int pageNumber, int rowsPerPage, Dictionary<string, string> dic_conditions, string field, string order, out int count)
+        {
+            #region 参数查询
+
+            string where = " WHERE 0=0 ";
+
+            //数据库参数
+            Dictionary<string, object> dic = new Dictionary<string, object>();
+			
+	        <#	        
+	        foreach (DbColumn column in columnList)
+	        {
+                if (!column.IsIdentity)
+                {
+                    switch(column.CSharpType)
+                    {
+						case "DateTime":{
+						#>//<#=column.Remark#>
+                        if (dic_conditions.ContainsKey("<#=column.ColumnName#>"))
+                        {
+                            string[] timearray = dic_conditions["<#=column.ColumnName#>"].Split(new string[] { " - " }, StringSplitOptions.RemoveEmptyEntries);
+		                
+                            if (timearray.Length == 2)
+                            {
+                                string StartTime = timearray[0];
+                                string EndTime = timearray[1];
+                                dic.Add("@StartTime", StartTime);
+                                dic.Add("@EndTime", EndTime + " 23:59:59");
+                                where += " AND (<#=column.ColumnName#>>=@StartTime AND <#=column.ColumnName#><=@EndTime) ";
+                            }
+                        }
+						<#
+						};break;
+						default :{
+						#>//<#=column.Remark#>
+                        if (dic_conditions.ContainsKey("<#=column.ColumnName#>"))
+                        {
+                            dic.Add("@<#=column.ColumnName#>", dic_conditions["<#=column.ColumnName#>"]);
+                            where += " AND <#=column.ColumnName#>=@<#=column.ColumnName#> ";
+                        }
+						<#
+						};break;
+					}		        
+	        	#>		
+			<#}}#>
+
+            #endregion
+
+            #region 排序
+
+            //排序sql语句拼接
+            string orderby = " <#= PKColumnName #> DESC ";//默认排序
+            if (!string.IsNullOrWhiteSpace(field))
+            {
+                orderby = string.Format("{0} {1}", field, string.IsNullOrWhiteSpace(order) ? "DESC" : order);
+            }
+
+            #endregion
+
+            var list = _repository.GetListPaged(pageNumber, rowsPerPage, where, orderby, dic);
+
+            count = GetListCount(where, dic);
+
+            return Mapper.Map<List<<#= table.TableName #>Output>>(list);
+        }
+
+        /// <summary>
+        /// 获取查询结果行数
+        /// </summary>
+        /// <param name="conditions"></param>
+        /// <param name="param"></param>
+        /// <returns></returns>
+        public int GetListCount(string conditions, object param)
+        {
+            return _repository.RecordCount(conditions, param);
+        }
+		
+        #endregion
+
+		#region 编辑
+        
+        /// <summary>
+        /// 添加
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public int Add(<#= table.TableName #>Input model)
+        {
+            var dbtran = _repository.BeginTransaction();//开启事务
+            try
+            {
+                var entity = Mapper.Map<<#= table.TableName #>>(model);
+				
+                int? ID = _repository.Insert(entity, dbtran);
+
+                dbtran.Commit();//提交事务
+                return 1;
+            }
+            catch (Exception ee)
+            {
+                dbtran.Rollback();//事务回滚
+                return 0;
+            }
+            finally
+            {
+                dbtran.Dispose();//释放事务资源
+            }
+        }
+
+        /// <summary>
+        /// 修改
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        public int Edit(<#= table.TableName #>Input model)
+        {
+            var dbtran = _repository.BeginTransaction();//开启事务
+            try
+            {
+                DateTime now = DateTime.Now;
+
+                var entity = _repository.Get(model.<#= PKColumnName #>, dbtran);
+                Mapper.Map(model, entity);//把model数据转移到entity
+
+                _repository.Update(entity, dbtran);
+                dbtran.Commit();//提交事务
+                return 1;
+            }
+            catch (Exception ee)
+            {
+                dbtran.Rollback();//事务回滚
+                return 0;
+            }
+            finally
+            {
+                dbtran.Dispose();//释放事务资源
+            }
+        }
+
+        /// <summary>
+        /// 批量删除
+        /// </summary>
+        /// <param name="IdList"></param>
+        /// <returns></returns>
+        public void DeleteList(string IdList)
+        {
+            var dbtran = _repository.BeginTransaction();//开启事务
+            try
+            {
+                foreach (string ID in IdList.Split(new Char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    <#= table.TableName #> model = _repository.Get(ID, dbtran);
+                    model.DeleteFlag = true;
+                    _repository.Update(model, dbtran);
+                }
+                dbtran.Commit();//提交事务
+            }
+            catch (Exception ee)
+            {
+                dbtran.Rollback();//事务回滚
+            }
+            finally
+            {
+                dbtran.Dispose();//释放事务资源
+            }
+        }
+
+        #endregion
+	}
+}
+
+<#  
+		manager.EndBlock();
+
+
+		//生成dto			
+        string path2 =Host.ResolveAssemblyReference("$(ProjectDir)")+"T4_All\\业务和Dto\\"+table.TableName+"\\Dto";//获取当前路径
+        if (!Directory.Exists(path2))
+        {
+            Directory.CreateDirectory(path2);
+        }
+        //Input类
+		manager.StartNewFile(path2+"\\"+table.TableName + "Input.cs");
+#>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace  BMOA.Application.System.Dto
+{
+	public class <#= table.TableName #>Input
+	{
+<#
+		PushIndent("        ");
+		
+		foreach (DbColumn column in columnList)
+		{
+			if(!string.IsNullOrEmpty(column.Remark))
+			{
+				WriteLine("///");
+				WriteLine("///" + column.Remark);
+				WriteLine("///");
+			}
+			WriteLine(string.Format("public {0}{1} {2} {{ get; set; }}"
+				, column.CSharpType, column.CommonType.IsValueType && column.IsNullable ? "?" : "", column.ColumnName));
+		}
+
+		PopIndent();
+#>
+	}
+}
+
+<#  
+		manager.EndBlock();
+
+		//生成dto			
+        string path3 =Host.ResolveAssemblyReference("$(ProjectDir)")+"T4_All\\业务和Dto\\"+table.TableName+"\\Dto";//获取当前路径
+        if (!Directory.Exists(path3))
+        {
+            Directory.CreateDirectory(path3);
+        }
+        //Output类
+		manager.StartNewFile(path3+"\\"+table.TableName+ "Output.cs");
+#>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BMOA.Application.System.Dto
+{
+	public class <#= table.TableName #>Output
+	{
+<#
+		PushIndent("        ");
+		
+		foreach (DbColumn column in columnList)
+		{
+			if(!string.IsNullOrEmpty(column.Remark))
+			{
+				WriteLine("///");
+				WriteLine("///" + column.Remark);
+				WriteLine("///");
+			}
+			WriteLine(string.Format("public {0}{1} {2} {{ get; set; }}"
+				, column.CSharpType, column.CommonType.IsValueType && column.IsNullable ? "?" : "", column.ColumnName));
+		}
+
+		PopIndent();
+#>
+	}
+}
+
+<#  
+		manager.EndBlock();
+    }
+    manager.Process(true);
+#>

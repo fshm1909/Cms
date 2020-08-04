@@ -1,0 +1,327 @@
+﻿<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ output extension=".cshtml" #>
+<#@ assembly name="System.Core.dll" #>
+<#@ assembly name="System.Data.dll" #>
+<#@ assembly name="System.Data.DataSetExtensions.dll" #>
+<#@ assembly name="System.Xml.dll" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.Xml" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Data" #>
+<#@ import namespace="System.Data.SqlClient" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.IO" #>
+<#@ include file="$(SolutionDir)\BMOA.T4\T4_All\DbHelper.ttinclude"#>
+<#@ include file="$(SolutionDir)\BMOA.T4\T4_All\MultipleOutputHelper.ttinclude"#>
+
+<#
+    List<DbTable> tableList = DbHelper.GetDbTables(MyDbConfig.ConnectionString, MyDbConfig.DbDatabase, MyDbConfig.TableName);
+	var manager = Manager.Create(Host, GenerationEnvironment);
+	foreach (var table in tableList)
+	{
+		var columnList = DbHelper.GetDbColumns(MyDbConfig.ConnectionString, MyDbConfig.DbDatabase, table.TableName);	
+
+		//获取主键名称
+        var PKColumn=columnList.Where(o=>o.IsPrimaryKey);	
+		string PKColumnName="";
+        if (PKColumn.Count()>0)
+        {
+		  PKColumnName=PKColumn.First().ColumnName;
+        }
+		
+		//创建路径
+        string path =Host.ResolveAssemblyReference("$(ProjectDir)")+"T4_All\\视图\\"+table.TableName;
+        if (!Directory.Exists(path))
+        {
+            Directory.CreateDirectory(path);
+        }
+#>
+
+<# manager.StartNewFile(path+"\\Index.cshtml");#>
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_LayuiLayout.cshtml";
+}
+
+<!-- 标题区块 -->
+<blockquote class="layui-elem-quote">
+    <div class="pos-r h-38" id="topbar">
+        <span>
+            @{
+                bool isHasRow; // 是否有行操作
+            }
+            @Html.SysMenuButton(MenuPosType.行列, out isHasRow)
+        </span>
+        <span class="pos-a pos-right">
+            <span class="layui-inline">
+                <button type="button" class="layui-btn" data-type="Search"><i class="layui-icon">&#xe615;</i>搜索</button>
+            </span>
+            <span class="layui-inline">
+                <button type="button" class="layui-btn" data-type="Reload"><i class="layui-icon">&#xe669;</i>刷新</button>
+            </span>
+        </span>
+    </div>
+</blockquote>
+
+<!-- 数据表格 -->
+<table class="layui-table" lay-filter="tbList" lay-data="{id:'tbList',url:'@Url.Action("GetListPage", "<#= table.TableName #>")', page:true, method:'post',height:'full-128'}">
+    <thead>
+        <tr>
+            <th lay-data="{type:'checkbox', width: 50, fixed:'left'}"></th>			
+	        <#	        
+	        foreach (DbColumn column in columnList)
+	        {
+                if (!column.IsIdentity){
+				#>
+<th lay-data="{field:'<#=column.ColumnName#>', width: 150, align:'center', sort: true}"><#= column.Remark #></th>
+				<#
+				}
+	        }
+            #>
+            @if (isHasRow)
+            {
+                Write(new MvcHtmlString("<th lay-data=\"{fixed:'right', width: 180, align:'center', unresize:true, toolbar:'#barOperation'}\">操作</th>"));
+            }
+        </tr>
+    </thead>
+</table>
+
+<!-- 搜索表单 -->
+<div class="hidden" id="SearchTmpl">
+    <form class="layui-form layui-form-pane">
+		<#	        
+	        foreach (DbColumn column in columnList)
+	        {
+                if (!column.IsIdentity){
+                    if (column.CSharpType=="DateTime"){#>
+<div class="layui-form-item">
+            <label class="layui-form-label"><#= column.Remark #></label>
+            <div class="layui-input-inline">
+                <input type="text" id="<#=column.ColumnName#>" name="<#=column.ColumnName#>" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+		<#}else{
+					#>
+<div class="layui-form-item">
+            <label class="layui-form-label"><#= column.Remark #></label>
+            <div class="layui-input-block">
+                <input type="text" name="<#=column.ColumnName#>" autocomplete="off" class="layui-input" />
+            </div>
+        </div>
+		<#
+	         
+                    }
+				
+        
+				}
+	        }
+        #>
+        <div class="layui-form-item">
+            <button type="button" class="layui-btn" @*data-type="Reload" *@ lay-submit="" lay-filter="search"><i class="layui-icon">&#xe615;</i>搜索</button>
+            <button type="button" class="layui-btn layui-btn-primary" onclick="layer.closeAll();">关闭</button>
+        </div>
+    </form>
+</div>
+
+<!-- js代码-->
+@section scripts{
+    <script>
+        var $, layer;//这两个变量设置为当前页的全局变量
+        layui.use(['table', 'form', 'laydate'], function () {
+            var table = layui.table, form = layui.form, laydate = layui.laydate;
+            $ = layui.jquery;
+            layer = layui.layer;
+
+            //刷新(添加修改等子页面也需要用到)
+            reload = function () {
+                table.reload('tbList');
+            }
+
+            //设置标题区块的按钮的事件方法
+            var active = {
+                Reload: function () {//刷新按钮
+                    reload();
+                },
+                Search: function () {
+                    layer_show(1, "高级检索", $("#SearchTmpl"), '400px', "100%", "r");
+                    form.render();//重新渲染表单
+<#
+		foreach (DbColumn column in columnList)
+		{
+		    if(column.CSharpType=="DateTime")
+		    {
+		        PushIndent("                    ");
+				WriteLine("laydate.render({ elem: '#"+column.ColumnName+"', range: true });//执行laydate");
+				PopIndent();
+		    }
+		}
+#>
+                },
+                Add: function () {
+                    layer_show('', '添加', '@Url.Action("AddOrEdit", "<#= table.TableName #>")', '100%', '100%');
+                },
+                Delete: function () {
+                    var checkStatus = table.checkStatus('tbList');//获取表格选中行
+                    var data = checkStatus.data;//获取选中行的数据
+                    if (CheckMultiple(data.length, layer, '删除')) {
+                        layer.confirm('确认要删除吗?', function (index) {
+                            $.post(
+                                '@Url.Action("DeleteList", "<#= table.TableName #>")',
+                                { IdList: GetIdList(data) },
+                                function (result) {
+                                    layer.close(index);
+
+                                    if (result.Success) {
+                                        layer.msg(result.Message, { icon: 1, time: 3000 });
+                                        reload();
+                                    } else {
+                                        layer.alert(result.Message, { icon: 2 });
+                                    }
+                                });
+                        });
+                    }
+                }
+            };
+
+            //获取并拼接数据中id的值
+            function GetIdList(data) {
+                var IdList = "", douhao = "";
+                for (var i = 0; i < data.length; i++) {
+                    IdList += douhao + data[i].<#= PKColumnName #>; douhao = ',';
+                }
+                return IdList;
+            }
+
+            //监听表头按钮点击
+            $('#topbar .layui-btn').on('click', function () {
+                //当按钮被单击时
+                var type = $(this).data('type');//获取该按钮的type数据
+                active[type] ? active[type].call(this) : '';//执行active中匹配type的方法
+            });
+
+            //监听排序
+            table.on('sort(tbList)', function (obj) {
+                table.reload('tbList', {
+                    initSort: obj,
+                    where: {
+                        field: obj.field,
+                        order: obj.type
+                    }
+                });
+            });
+
+            //监听表格 列工具条
+            table.on('tool(tbList)', function (obj) {
+                var data = obj.data;//获得当前行数据
+                var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+
+                switch (layEvent) {
+                    case "Edit": { layer_show('', '修改', '@Url.Action("AddOrEdit", "<#= table.TableName #>")?<#= PKColumnName #>=' + data.<#= PKColumnName #>, '100%', '100%'); }; break;
+                    case "Delete": {
+                        layer.confirm('确认要删除吗?', function (index) {
+                            $.post('@Url.Action("DeleteList", "<#= table.TableName #>")',
+                                { IdList: data.<#= PKColumnName #> },
+                                function (result) {
+                                    layer.close(index);
+
+                                    if (result.Success) {
+                                        layer.msg(result.Message, { icon: 1, time: 3000 });
+                                        reload();
+                                    } else {
+                                        layer.alert(result.Message, { icon: 2 });
+                                    }
+                                });
+                        });
+                    }; break;
+                    default: { }; break;
+                }
+            });
+
+            //高级搜索提交按钮事件
+            form.on('submit(search)', function (data) {
+                //传入搜索参数并重新加载当前表格
+                table.reload('tbList', {
+                    where: data.field,
+                    page: { curr: 1 /*重新从第 1 页开始*/ }
+                });
+                layer.closeAll();//关闭高级搜索框
+                return false;
+            });
+        });
+    </script>
+}
+<# manager.EndBlock();#>
+
+<# manager.StartNewFile(path+"\\AddOrEdit.cshtml");#>
+@{
+    Layout = "~/Views/Shared/_LayuiLayout.cshtml";
+}
+
+@model <#= table.TableName #>Output
+
+<form class="layui-form layui-form-pane">
+    @Html.AntiForgeryToken()
+    <input type="hidden" value="@Model.<#= PKColumnName #>" name="<#= PKColumnName #>" />
+	<#	        
+	        foreach (DbColumn column in columnList)
+	        {
+                if (!column.IsIdentity){
+			#><div class="layui-form-item">
+                   <label class="layui-form-label"><#= column.Remark #></label>
+                   <div class="layui-input-block">
+                       <input type="number" class="layui-input" name="<#=column.ColumnName#>" value="@Model.<#=column.ColumnName#>">
+                   </div>
+              </div>
+				<#
+				}
+	        }
+            #>
+    <div class="layui-form-item" align="center">
+        <button type="button" class="layui-btn" lay-submit="" lay-filter="Save">保存</button>
+        <button type="button" class="layui-btn layui-btn-primary" id="btnCancel">取消</button>
+    </div>
+</form>
+
+@section scripts{
+    <script type="text/javascript">
+        var $, layer;
+        layui.use(['form'], function () {
+            var form = layui.form;
+            $ = layui.jquery;
+            layer = parent.layer === undefined ? layui.layer : parent.layer;
+
+            // 监听关闭
+            $('#btnCancel').on('click', function () {
+                layer_close();
+            });
+
+
+            var postUrl = '@(Url.Action(Model.<#= PKColumnName #> > 0 ? "Edit" : "Add", "<#= table.TableName #>"))';
+
+            // 监听提交
+            form.on('submit(Save)', function (data) {
+                var loading = layer.load();
+                $.post(postUrl, data.field,
+                    function (result) {
+                        layer.close(loading);
+                        if (result.Success) {
+                            layer.msg(result.Message, { icon: 1, time: 2000 });
+                            parent.reload();
+                            layer_close();
+                        } else {
+                            layer.alert(result.Message, { icon: 2 });
+                        }
+                    });
+                return false;
+            })
+
+        });
+    </script>
+}
+
+
+
+<# manager.EndBlock();#>
+
+<# } #>
+<# manager.Process(true);//执行输出#>

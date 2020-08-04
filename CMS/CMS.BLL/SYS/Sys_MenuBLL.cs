@@ -18,7 +18,7 @@ namespace CMS.BLL
         
         public IEnumerable<Sys_Menu_Out> GetAll()
         {
-            var List = DAL.GetList(" where DeleteFlag=0");
+            var List = DAL.GetList(" where DeleteFlag=0 AND IsEnable=1");
             return Mapper.Map<IEnumerable<Sys_Menu_Out>>(List);
         }
 
@@ -92,16 +92,16 @@ namespace CMS.BLL
         /// 分层获取菜单
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<dynamic> GetMenu()
+        public IEnumerable<Sys_Menu_OutNav> GetMenu()
         {
-            List<dynamic> List_Result = new List<dynamic>();
-            var List = DAL.GetList(" where DeleteFlag=0");
-            GetChild(0, List, ref List_Result);
+            List<Sys_Menu_OutNav> List_Result = new List<Sys_Menu_OutNav>();
+            var List = DAL.GetList(" where DeleteFlag=0 AND IsEnable=1");
+            GetChild(0, Mapper.Map<IEnumerable<Sys_Menu_OutNav>>(List), ref List_Result);
             return List_Result;
         }
 
         //获取子级
-        private static void GetChild(int? ParentValue, IEnumerable<Sys_Menu> List_All, ref List<dynamic> List_Result)
+        private static void GetChild(int? ParentValue, IEnumerable<Sys_Menu_OutNav> List_All, ref List<Sys_Menu_OutNav> List_Result)
         {
             //查询子级
             var List_Child = List_All.Where(o => o.PID == ParentValue).OrderBy(o=>o.Sort);
@@ -110,17 +110,18 @@ namespace CMS.BLL
                 //循环所有子级再查询
                 foreach (var item in List_Child)
                 {
-                    XMSselect obj =new XMSselect();
-                    obj.name = item.Name;
-                    obj.value = item.ID.ToString();
-                    List<dynamic> children = new List<dynamic>();
+                    //Sys_Menu_OutNav obj =new Sys_Menu_OutNav();
+                    //obj.name = item.Name;
+                    //obj.value = item.ID.ToString();
+
+                    List<Sys_Menu_OutNav> children = new List<Sys_Menu_OutNav>();
                     GetChild(item.ID, List_All, ref children);
                     if (children.LongCount() > 0)
                     {
-                        obj.children = children;
+                        item.children = children;
                     }
 
-                    List_Result.Add(obj);
+                    List_Result.Add(item);
                 }
             }
         }

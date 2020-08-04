@@ -29,13 +29,23 @@
     <button class="layui-btn layui-btn-normal" title="菜单按钮" lay-event="menubtn">菜单按钮</button>
     <button class="layui-btn layui-btn-danger" title="删除" lay-event="del">删除</button>
 </script>
+<!-- 状态 模板 -->
+<script type="text/html" id="IsEnableTpl">
+    {{d.IsEnable}}
+    {{#  if(d.IsEnable=='true'){ }}
+    <font color='#008000'>启用</font>
+    {{#  } else if(d.IsEnable=='false'){ }}
+    <font color='red'>禁用</font>
+    {{#  } }}
+</script>
+<!-- 图标 模板 -->
+<script type="text/html" id="IconTpl">
+    <i class="layui-icon">{{ d.Icon }}</i>
+</script>
 <script>
     var ptable = null, treeGrid = null, layer = null, tableId = 'MainTable';
-    layui.config({
-        base: '/Scripts/lib/layui/extend/'
-    }).extend({
-        tableEdit: 'tableEdit',  //表格树依赖我另外写的tableEdit模块，本项目就有。
-        tableTree: 'tableTree'
+    layui.extend({
+        treeGrid: 'extend/treeGrid'
     }).use(['jquery', 'treeGrid', 'layer'], function () {
         var $ = layui.jquery;
         treeGrid = layui.treeGrid;//很重要
@@ -63,8 +73,9 @@
                 { field: 'Controllers', title: '控制器', width: 100 },
                 { field: 'Action', title: '方法', width: 100 },
                 { field: 'Sort', title: '排序号', width: 100, align: 'center' },
-                { field: 'Icon', title: '图标', width: 100, align: 'center' },
-                { fixed: 'right', title: '操作', width: 300, align: 'center', templet: '#colbtnTpl' }
+                { field: 'Icon', title: '图标', width: 100, align: 'center', templet: '#IconTpl' },
+                { field: 'IsEnable', title: '是否启用', width: 100, align: 'center', templet: '#IsEnableTpl' },
+                { fixed: 'right', title: '操作', width: 300, align: 'center', toolbar: '#colbtnTpl' }
             ]]
         });
 

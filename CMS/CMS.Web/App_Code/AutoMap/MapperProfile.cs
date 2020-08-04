@@ -18,6 +18,7 @@ namespace CMS.Web
             CreateMap<Sys_User_In, Sys_User>();
 
             CreateMap<Sys_Menu, Sys_Menu_Out>();
+            CreateMap<Sys_Menu, Sys_Menu_OutNav>();
             CreateMap<Sys_Menu_In, Sys_Menu>();
         }
     }

@@ -6,7 +6,7 @@
  在线demo：http://beijiyi.com/index_list.html
  */
 layui.config({
-    base: '/Scripts/lib/layui/extend/'
+    //base: '/Scripts/lib/layui/extend/'
 }).extend({
     treeGrid:'treeGrid'
 }).define(['laytpl', 'laypage','treeGrid', 'layer', 'form'], function(exports){

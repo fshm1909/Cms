@@ -51,6 +51,12 @@
                 </div>
             </div>
             <div class="layui-form-item">
+                <label class="layui-form-label">是否启用</label>
+                <div class="layui-input-inline">
+                    <input type="checkbox" name="IsEnable" lay-skin="switch" lay-text="是|否"  @((Model.IsEnable??false)?"checked":"") value="true">
+                </div>
+            </div>
+            <div class="layui-form-item">
                 <label for="L_repass" class="layui-form-label"></label>
                 <button type="button" class="layui-btn" lay-submit="" lay-filter="Save">保存</button>
                 <button type="button" class="layui-btn layui-btn-primary" id="btnCancel">取消</button>
@@ -77,6 +83,10 @@
             radio: true,//是否开启单选模式
             filterable: true,//	是否开启搜索
             clickClose: true,//是否点击选项后自动关闭下拉框
+            prop: {
+                name: 'Name',
+                value: 'ID'
+            },
             tree: {
                 show: true,//是否展示为树状结构
                 strict: true,//默认展开节点

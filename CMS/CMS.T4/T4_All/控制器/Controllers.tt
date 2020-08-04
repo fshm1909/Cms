@@ -1,0 +1,197 @@
+﻿<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ output extension=".cs" encoding="utf-8" #>
+<#@ assembly name="System.Core.dll" #>
+<#@ assembly name="System.Data.dll" #>
+<#@ assembly name="System.Data.DataSetExtensions.dll" #>
+<#@ assembly name="System.Xml.dll" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.Xml" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Data" #>
+<#@ import namespace="System.Data.SqlClient" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.IO" #>
+<#@ include file="$(SolutionDir)\BMOA.T4\T4_All\DbHelper.ttinclude"#>
+<#@ include file="$(SolutionDir)\BMOA.T4\T4_All\MultipleOutputHelper.ttinclude"#>
+
+<#
+	string ns = ".System";
+
+    List<DbTable> tableList = DbHelper.GetDbTables(MyDbConfig.ConnectionString, MyDbConfig.DbDatabase, MyDbConfig.TableName);
+	var manager = Manager.Create(Host, GenerationEnvironment);
+	foreach (var table in tableList)
+	{
+		var columnList = DbHelper.GetDbColumns(MyDbConfig.ConnectionString, MyDbConfig.DbDatabase, table.TableName);//获取实体所有字段
+
+        string columnListstr="";
+		foreach (DbColumn column in columnList)
+	    {
+            if (!column.IsIdentity)
+            {	
+              columnListstr+="\""+column.ColumnName+"\",";	 
+            }
+	    }
+
+		
+		//获取主键名称
+        var PKColumn=columnList.Where(o=>o.IsPrimaryKey);	
+		string PKColumnName="";
+        if (PKColumn.Count()>0)
+        {
+		  PKColumnName=PKColumn.First().ColumnName;
+        }
+#>		
+<# manager.StartNewFile(table.TableName + "Controller.cs"); #>
+using BMOA.Application.System;
+using BMOA.Application.System.Dto;
+using BMOA.Web.Filter;
+using BMOA.Web.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace BMOA.Web.Areas.MKTAdmin.Controllers
+{
+    /// <summary>
+    /// 
+    /// </summary>
+    [MenuFilter]
+    public class <#= table.TableName #>Controller : AdminController
+    {
+        public ActionResult Index()
+        {
+            return View();
+        }
+
+        //获取首页列表数据
+        [HttpPost]
+        [MenuRoute("Index")]
+        public JsonResult GetListPage()
+        {
+            LayTableModel result = new LayTableModel();
+            <#= table.TableName #>Service service = new <#= table.TableName #>Service();
+            try
+            {
+                int page = int.Parse(Request.Params["page"]);//当前页码
+                int limit = int.Parse(Request.Params["limit"]);//每页数量
+                string field = Request.Params["field"];//排序字段名
+                string order = Request.Params["order"];//排序方式：desc, asc, null(空对象，默认排序)
+                //参数
+                Dictionary<string, string> dic = new Dictionary<string, string>();
+                string[] par = { <#= columnListstr.TrimEnd(',')#>};
+
+                foreach (string item in par)
+                {
+                    if (!string.IsNullOrWhiteSpace(Request.Params[item]))
+                    {
+                        dic.Add(item, Request.Params[item]);
+                    }
+                }
+                int count = 0;
+
+                var list = service.GetListPage(page, limit, dic, field, order, out count);
+
+                result.data = list;
+                result.count = count;
+
+            }
+            catch (Exception ex)
+            {
+                result.code = -1;
+                result.msg = ex.Message;
+            }
+            return Json(result);
+        }
+
+
+        //添加修改视图
+        [MenuRoute("Index")]
+        public ActionResult AddOrEdit(int <#= PKColumnName #> = 0)
+        {
+            <#= table.TableName #>Output model = null;
+            <#= table.TableName #>Service service = new <#= table.TableName #>Service();
+            if (<#= PKColumnName #> > 0)
+            {
+                model = service.Get<<#= table.TableName #>Output>(<#= PKColumnName #>);
+            }
+            else
+            {
+                model = new <#= table.TableName #>Output();
+            }
+            return View(model);
+        }
+
+        //添加
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public JsonResult Add(<#= table.TableName #>Input model)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                int result = new <#= table.TableName #>Service().Add(model);
+                if (result > 0)
+                {
+                    response.Success = true;
+                    response.Message = "添加成功";
+                }
+                else
+                {
+                    response.Success = false;
+                    response.Message = "添加失败";
+                }
+
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+            }
+            return Json(response, JsonRequestBehavior.DenyGet);
+        }
+        
+        //修改
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public JsonResult Edit(<#= table.TableName #>Input model)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                int id = new <#= table.TableName #>Service().Edit(model);
+                response.Success = true;
+                response.Message = "修改成功";
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+            }
+            return Json(response, JsonRequestBehavior.DenyGet);
+        }
+
+        //删除
+        [MenuRoute("Delete")]
+        public JsonResult DeleteList(string IdList)
+        {
+            ResponseModel response = new ResponseModel();
+            try
+            {
+                new <#= table.TableName #>Service().DeleteList(IdList);
+                response.Success = true;
+                response.Message = "删除成功";
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+            }
+            return Json(response, JsonRequestBehavior.DenyGet);
+        }
+    }
+}
+<# manager.EndBlock();#>
+<# } #>
+<# manager.Process(true);#>

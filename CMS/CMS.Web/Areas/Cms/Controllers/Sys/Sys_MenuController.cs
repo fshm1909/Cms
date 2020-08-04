@@ -105,6 +105,7 @@ namespace CMS.Web.Areas.Cms.Controllers
         //添加
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [ValidateInput(false)]
         public JsonResult Add(Sys_Menu_In model)
         {
             ResponseModel response = new ResponseModel();
@@ -133,6 +134,7 @@ namespace CMS.Web.Areas.Cms.Controllers
         //修改
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [ValidateInput(false)]
         public JsonResult Edit(Sys_Menu_In model)
         {
             ResponseModel response = new ResponseModel();
