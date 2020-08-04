@@ -161,7 +161,11 @@
             str = "<ul class='sub-menu'>";
             for (var i in list) {
                 str += "<li>";
-                str += "<a onclick=\"xadmin.add_tab('" + list[i]["Name"] + "','" + list[i]["Area"] + "/" + list[i]["Controllers"] + "/" + list[i]["Action"] + "')\">";
+                str += "<a ";
+                if (list[i]["Area"] != null) {
+                    str += " onclick=\"xadmin.add_tab('" + list[i]["Name"] + "','" + list[i]["Area"] + "/" + list[i]["Controllers"] + "/" + list[i]["Action"] + "')\" ";
+                }
+                str += ">";
                 str += "<i class='iconfont'>&#xe6a7;</i>";
                 if (list[i]["Icon"]!=null) {
                     str += "<i class='iconfont left-nav-li' lay-tips='会员管理'>" + list[i]["Icon"] + "</i>";

@@ -82,7 +82,7 @@ namespace CMS.Web.Areas.Cms.Controllers
 
             return View(model);
         }
-        
+
         //添加
         [HttpPost]
         public JsonResult GetMenu()
@@ -111,6 +111,7 @@ namespace CMS.Web.Areas.Cms.Controllers
             ResponseModel response = new ResponseModel();
             try
             {
+                if (model.PID == null) { model.PID = 0; }
                 int result = bll.Add(model);
                 if (result == 1)
                 {
@@ -140,6 +141,7 @@ namespace CMS.Web.Areas.Cms.Controllers
             ResponseModel response = new ResponseModel();
             try
             {
+                if (model.PID == null) { model.PID = 0; }
                 int result = bll.Edit(model);
                 if (result == 1)
                 {

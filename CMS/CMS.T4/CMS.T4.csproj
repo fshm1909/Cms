@@ -43,33 +43,10 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="T4_All\DbHelper.cs" />
-    <Compile Include="T4_All\业务和Dto\Services.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Services.tt</DependentUpon>
-    </Compile>
-    <Compile Include="T4_All\实体\Entities.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Entities.tt</DependentUpon>
-    </Compile>
-    <Compile Include="T4_All\实体\Sys_Menu.cs">
-      <DependentUpon>Entities.tt</DependentUpon>
-    </Compile>
-    <Compile Include="T4_All\控制器\Controllers.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Controllers.tt</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="T4_All\DbHelper.ttinclude" />
     <None Include="T4_All\MultipleOutputHelper.ttinclude" />
-    <None Include="T4_All\视图\View.cshtml">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>View.tt</DependentUpon>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Content Include="T4_All\业务和Dto\Services.tt">
