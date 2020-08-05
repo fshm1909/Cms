@@ -228,6 +228,8 @@
     <Compile Include="Areas\Cms\Controllers\HomeController.cs" />
     <Compile Include="Areas\Cms\Controllers\Sys\Sys_MenuController.cs" />
     <Compile Include="Areas\Cms\Controllers\Sys\Sys_UserController.cs" />
+    <Compile Include="Areas\Study\Controllers\.Net\ClassExplanationController.cs" />
+    <Compile Include="Areas\Study\StudyAreaRegistration.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -239,7 +241,6 @@
   <ItemGroup>
     <Content Include="Views\web.config" />
     <Content Include="Areas\Cms\Views\web.config" />
-    <Content Include="Areas\Cms\Views\Shared\_Layout.cshtml" />
     <Content Include="Areas\Cms\Views\Home\Index.cshtml" />
     <Content Include="fonts\iconfont.eot" />
     <Content Include="fonts\iconfont.ttf" />
@@ -247,10 +248,13 @@
     <Content Include="Areas\Cms\Views\Sys_User\Index.cshtml" />
     <Content Include="Areas\Cms\Views\Sys_Menu\Index.cshtml" />
     <Content Include="Areas\Cms\Views\Sys_Menu\AddOrEdit.cshtml" />
+    <Content Include="Areas\Study\Views\web.config" />
+    <Content Include="Areas\Study\Views\ClassExplanation\Index.cshtml" />
     <None Include="packages.config" />
     <Content Include="Scripts\lib\layui\font\iconfont.eot" />
     <Content Include="Scripts\lib\layui\font\iconfont.ttf" />
     <Content Include="Scripts\lib\layui\font\iconfont.woff" />
+    <Content Include="Views\Shared\_Layout.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -259,6 +263,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Areas\Cms\Views\Shared\" />
+    <Folder Include="Areas\Study\Models\.Net\" />
+    <Folder Include="Areas\Study\Views\Shared\" />
     <Folder Include="T4\" />
     <Folder Include="Views\Home\" />
   </ItemGroup>
