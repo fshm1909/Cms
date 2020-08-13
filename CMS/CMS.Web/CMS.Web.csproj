@@ -229,6 +229,7 @@
     <Compile Include="Areas\Cms\Controllers\Sys\Sys_MenuController.cs" />
     <Compile Include="Areas\Cms\Controllers\Sys\Sys_UserController.cs" />
     <Compile Include="Areas\Study\Controllers\.Net\ClassExplanationController.cs" />
+    <Compile Include="Areas\Study\Models\.Net\ClassExplanation_Test1.cs" />
     <Compile Include="Areas\Study\StudyAreaRegistration.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Global.asax.cs">
@@ -264,7 +265,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Areas\Cms\Views\Shared\" />
-    <Folder Include="Areas\Study\Models\.Net\" />
     <Folder Include="Areas\Study\Views\Shared\" />
     <Folder Include="T4\" />
     <Folder Include="Views\Home\" />
